@@ -1,0 +1,27 @@
+{
+  "name": "Cart",
+  "version": "1.0.0",
+  "homepage": "https://github.com/stpettersens/Cart",
+  "authors": [
+    "Sam Saint-Pettersen <s.stpettersen+github@gmail.com>"
+  ],
+  "description": "A shopping cart implemented via the client-script in TypeScript",
+  "main": "cart.min.js",
+  "keywords": [
+    "shopping",
+    "cart"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "Cart.ts",
+    "Gulpfile.js",
+    "typings",
+    "node_modules",
+    "bower_components",
+    "Coyote.py",
+    "*.xml"
+    ".gitignore",
+    ".npmignore",
+    "tsconfig.json",
+  ]
+}

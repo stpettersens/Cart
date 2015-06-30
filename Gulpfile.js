@@ -4,7 +4,7 @@
 
 var gulp = require('gulp'),
 	  fs = require('fs'),
- 	 tsc = require('gulp-typescript'),
+	 tsc = require('gulp-typescript'),
   insert = require('gulp-insert'),
   concat = require('gulp-concat'),
   rename = require('gulp-rename'),

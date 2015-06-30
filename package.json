@@ -1,14 +1,20 @@
 {
   "name": "Cart",
   "version": "1.0.0",
-  "description": "A shopping cart implemented via the client-script in TypeScript.",
+  "description": "A shopping cart implemented via the client-script in TypeScript",
   "main": "cart.min.js",
+  "keywords": [
+    "shopping",
+    "cart",
+    "clientside",
+    "typescript"
+  ],
   "scripts": {
     "build": "gulp"
   },
   "author": "Sam Saint-Pettersen <s.stpettersen+github@gmail.com>",
   "license": "MIT",
-  "dependencies": {
+  "devDependencies": {
     "gulp": "~3.9.0",
     "gulp-typescript": "~2.7.7",
     "gulp-insert": "~0.4.0",

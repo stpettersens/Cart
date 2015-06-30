@@ -1,0 +1,4 @@
+node_modules/
+Coyote.py
+*.xml
+tsconfig.json
