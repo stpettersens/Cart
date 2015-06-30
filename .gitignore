@@ -1,4 +1,4 @@
 node_modules/
-*.js
 Coyote.py
 *.xml
+check_bower.js

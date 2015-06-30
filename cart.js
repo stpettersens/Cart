@@ -1,0 +1,252 @@
+/*
+A shopping cart implemented via the client-side in TypeScript.
+Copyright 2015 Sam Saint-Pettersen.
+Released under the MIT License.
+https://github.com/stpettersens/Cart
+*/
+var Cart = (function () {
+    function Cart() {
+    }
+    Cart.isStorageSupported = function () {
+        var storage = false;
+        if (typeof (Storage) != undefined) {
+            storage = true;
+        }
+        return storage;
+    };
+    Cart.showAlert = function (message) {
+        if (Cart.alerts) {
+            $('#cart-alert').append('<div id="alert-for-cart" class="alert-success">' + message + '.</div>');
+            setTimeout(function () {
+                $('#alert-for-cart').remove();
+            }, 2500);
+        }
+    };
+    Cart.reset = function () {
+        Cart.items = new Array();
+        Cart.prices = new Array();
+        Cart.qtys = new Array();
+    };
+    Cart.store = function (value) {
+        if (!Cart.forceCookie && Cart.isStorageSupported()) {
+            localStorage.setItem('cart_item_' + localStorage.length, value);
+        }
+        else {
+            var items = $.cookie(Cart.cookie);
+            if (items == undefined)
+                items = '';
+            items += value + ',';
+            $.removeCookie(Cart.cookie);
+            $.cookie(Cart.cookie, items, { expires: Cart.cookieTTL, path: '/' });
+        }
+    };
+    Cart.removeIt = function (value) {
+        if (!Cart.forceCookie && Cart.isStorageSupported()) {
+            var i = localStorage.length - 1;
+            while ((localStorage.length - 1) >= 0) {
+                var item = localStorage.getItem('cart_item_' + i);
+                if (item.search(value) != -1) {
+                    localStorage.removeItem('cart_item_' + i);
+                    break;
+                }
+                i--;
+            }
+            var corrected = new Array();
+            for (var key in localStorage) {
+                if (key.search('cart_item_') != -1) {
+                    corrected.push(localStorage.getItem(key));
+                }
+            }
+            Cart.empty(true);
+            for (var i = 0; i < corrected.length; i++) {
+                Cart.store(corrected[i]);
+            }
+        }
+        else {
+            var items = $.cookie(Cart.cookie);
+            items = items.replace(value + ',', '');
+            Cart.empty(true);
+            $.cookie(Cart.cookie, items, { expires: Cart.cookieTTL, path: '/' });
+            if (items == '')
+                Cart.empty(true);
+        }
+    };
+    Cart.pushFromStorage = function () {
+        for (var i = 0; i < localStorage.length; i++) {
+            var np = localStorage.getItem('cart_item_' + i).split(':');
+            var index = Cart.items.indexOf(np[0]);
+            if (index == -1) {
+                Cart.items.push(np[0]);
+                Cart.prices.push(parseFloat(np[1]));
+                Cart.qtys.push(1);
+            }
+            else
+                Cart.qtys[index] = Cart.qtys[index] + 1;
+        }
+    };
+    Cart.pushFromCookie = function () {
+        var cookie = $.cookie(Cart.cookie);
+        var values = new Array();
+        if (cookie != undefined)
+            values = cookie.split(',');
+        for (var i = 0; i < values.length; i++) {
+            if (values[i] == '')
+                continue;
+            var np = values[i].split(':');
+            var index = Cart.items.indexOf(np[0]);
+            if (index == -1) {
+                Cart.items.push(np[0]);
+                Cart.prices.push(parseFloat(np[1]));
+                Cart.qtys.push(1);
+            }
+            else
+                Cart.qtys[index] = Cart.qtys[index] + 1;
+        }
+    };
+    Cart.getNumberItems = function () {
+        Cart.reset();
+        if (!Cart.forceCookie && Cart.isStorageSupported()) {
+            Cart.pushFromStorage();
+        }
+        else {
+            Cart.pushFromCookie();
+        }
+        var items = new Array();
+        if (!Cart.forceCookie && Cart.isStorageSupported()) {
+            for (var key in localStorage) {
+                if (key.search('cart_item_') != -1) {
+                    items.push(localStorage.getItem(key));
+                }
+            }
+        }
+        else {
+            var stritems = $.cookie(Cart.cookie);
+            if (stritems != undefined) {
+                var i = stritems.split(',');
+                for (var x = 0; x < i.length; x++) {
+                    if (i[x] != '')
+                        items.push(i[x]);
+                }
+            }
+        }
+        return items.length;
+    };
+    Cart.renderItems = function () {
+        var total = 0;
+        var c = Cart.currency;
+        Cart.reset();
+        if (!Cart.forceCookie && Cart.isStorageSupported()) {
+            Cart.pushFromStorage();
+        }
+        else {
+            Cart.pushFromCookie();
+        }
+        if (Cart.items.length > 0) {
+            $('#cart').append('<table id="cart-contents"><tr><td>Item</td>' + '<td>Price</td><td>Qty</td><td>Subtotal</td><td>&nbsp;</td></tr>');
+            for (var i = 0; i < Cart.items.length; i++) {
+                $('#cart-contents').append('<tr><td class="item">' + Cart.items[i] + '</td>' + '<td class="price">' + c + ' ' + Cart.prices[i].toFixed(2) + '</td><td class="qty">' + Cart.qtys[i] + '</td><td class="subtotal">' + c + ' ' + (Cart.prices[i] * Cart.qtys[i]).toFixed(2) + '</td><td><button onclick="Cart.removeItem(' + i + ')">X</button>' + '&nbsp;<button onclick="Cart.changeQty(' + i + ',true);">+</button>' + '&nbsp;<button onclick="Cart.changeQty(' + i + ',false);">-</button>' + '</td></tr>');
+                total += Cart.prices[i] * Cart.qtys[i];
+            }
+            $('#cart-contents').append('</tr></table>');
+            $('#cart-contents').append('<p id="total"><br/><strong>Total: ' + c + ' ' + total.toFixed(2) + '</strong></p>');
+            if (Cart.bootstrap) {
+                $('#cart-contents').addClass('table');
+                if (Cart.striped)
+                    $('#cart-contents').addClass('table-striped');
+            }
+            $('#cart').append('<p><button onclick="Cart.empty();">Empty ' + Cart.cart + '</button></p>');
+        }
+        else
+            $('#cart').append('<p><em>Your ' + Cart.cart.toLowerCase() + ' is empty.</em></p>');
+    };
+    Cart.empty = function (noprompt) {
+        if (!noprompt)
+            var empty = confirm('Really empty the ' + Cart.cart.toLowerCase() + '?');
+        if (empty || noprompt) {
+            if (!Cart.forceCookie && Cart.isStorageSupported()) {
+                for (var key in localStorage) {
+                    if (key.search('cart_item_') != -1) {
+                        localStorage.removeItem(key);
+                    }
+                }
+            }
+            else {
+                $.removeCookie(Cart.cookie);
+            }
+            $('#cart').empty();
+            Cart.renderItems();
+        }
+    };
+    Cart.changeQty = function (index, increment) {
+        var item = $('.item:eq(' + index + ')').text();
+        var price = $('.price:eq(' + index + ')').text();
+        var qty = $('.qty:eq(' + index + ')').text();
+        if (increment) {
+            Cart.store(item + ':' + price.replace(/\$|\£\s*/, ''));
+        }
+        else {
+            Cart.removeIt(item + ':' + price.replace(/\$|\£\s*/, ''));
+        }
+        $('#cart').empty();
+        Cart.renderItems();
+    };
+    Cart.removeItem = function (index) {
+        Cart.reset();
+        if (!Cart.forceCookie && Cart.isStorageSupported()) {
+            Cart.pushFromStorage();
+            localStorage.clear();
+        }
+        else {
+            Cart.pushFromCookie();
+            $.removeCookie(Cart.cookie);
+        }
+        Cart.items.splice(index, 1);
+        Cart.prices.splice(index, 1);
+        for (var i = 0; i < Cart.items.length; i++) {
+            Cart.store(Cart.items[i] + ':' + Cart.prices[i]);
+        }
+        $('#cart').empty();
+        Cart.renderItems();
+    };
+    Cart.addItem = function (id) {
+        var item = $('#product-' + id + '> .name').text();
+        $('#product-' + id).each(function () {
+            Cart.store(item + ':' + $('#product-' + id + '> .price').text().replace(/\$|\£\s*/, ''));
+        });
+        Cart.showAlert('Added ' + item + ' to ' + Cart.cart.toLowerCase());
+        Cart.renderCart(Cart.page);
+    };
+    Cart.configure = function (name, forceCookie, currency, bootstrap, striped, alerts) {
+        if (name != null)
+            Cart.cart = name;
+        if (forceCookie != null)
+            Cart.forceCookie = forceCookie;
+        if (currency != null)
+            Cart.currency = currency;
+        else
+            Cart.currency = '$';
+        if (bootstrap != null)
+            Cart.bootstrap = bootstrap;
+        if (striped != null)
+            Cart.striped = striped;
+        if (alerts != null)
+            Cart.alerts = alerts;
+    };
+    Cart.renderCart = function (page) {
+        Cart.page = page;
+        var cart = '<div id="cart-items">';
+        cart += '<a href="' + Cart.page + '">' + Cart.cart + '</a>';
+        cart += ' [' + Cart.getNumberItems() + ']';
+        cart += '</div><br/><br/>';
+        $('#cart-box').empty();
+        $('#cart-box').append(cart);
+    };
+    Cart.cart = 'Cart';
+    Cart.forceCookie = false;
+    Cart.cookie = 'cart';
+    Cart.cookieTTL = 365;
+    Cart.bootstrap = false;
+    Cart.striped = false;
+    Cart.alerts = false;
+    return Cart;
+})();

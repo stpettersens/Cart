@@ -23,7 +23,6 @@
   "ignore": [
     "Cart.ts",
     "Gulpfile.js",
-    "LICENSE",
     "typings",
     "node_modules",
     "bower_components",
