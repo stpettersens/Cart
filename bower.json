@@ -26,8 +26,6 @@
     "typings",
     "node_modules",
     "bower_components",
-    "Coyote.py",
-    "*.xml",
     ".gitignore",
     ".npmignore",
     "tsconfig.json"
