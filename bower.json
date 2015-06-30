@@ -5,13 +5,21 @@
   "authors": [
     "Sam Saint-Pettersen <s.stpettersen+github@gmail.com>"
   ],
-  "description": "A shopping cart implemented via the client-script in TypeScript",
+  "description": "A shopping cart implemented via the client-script",
   "main": "cart.min.js",
+  "dependencies": {
+  	"jquery": ">=1.2",
+  	"jquery-cookie": ">=1.4.1"
+  },
   "keywords": [
     "shopping",
     "cart"
   ],
   "license": "MIT",
+  "repository": {
+  	"type": "git",
+  	"url": "git://github.com/stpettersens/Cart.git"
+  },
   "ignore": [
     "Cart.ts",
     "Gulpfile.js",
@@ -22,6 +30,6 @@
     "*.xml"
     ".gitignore",
     ".npmignore",
-    "tsconfig.json",
+    "tsconfig.json"
   ]
 }
