@@ -1,5 +1,5 @@
 {
-  "name": "Cart",
+  "name": "cart",
   "version": "1.0.0",
   "homepage": "https://github.com/stpettersens/Cart",
   "authors": [
@@ -23,11 +23,12 @@
   "ignore": [
     "Cart.ts",
     "Gulpfile.js",
+    "LICENSE",
     "typings",
     "node_modules",
     "bower_components",
     "Coyote.py",
-    "*.xml"
+    "*.xml",
     ".gitignore",
     ".npmignore",
     "tsconfig.json"
