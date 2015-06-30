@@ -1,5 +1,5 @@
 {
-  "name": "Cart",
+  "name": "cart",
   "version": "1.0.0",
   "description": "A shopping cart implemented via the client-script in TypeScript",
   "main": "cart.min.js",
