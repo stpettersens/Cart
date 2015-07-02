@@ -227,11 +227,12 @@ class Cart {
 		var item: string = $('.item:eq(' + index + ')').text();
 		var price: string = $('.price:eq(' + index + ')').text();
 		var qty: string = $('.qty:eq(' + index + ')').text();
+		var pattern: string = Cart.currency + '\s*';
 		if(increment) {
-			Cart.store(item + ':' + price.replace(/\$|\£\s*/, ''));
+			Cart.store(item + ':' + price.replace(pattern, ''));
 		}
 		else {
-			Cart.removeIt(item + ':' + price.replace(/\$|\£\s*/, ''));
+			Cart.removeIt(item + ':' + price.replace(pattern, ''));
 		}
 		$('#cart').empty();
 		Cart.renderItems();

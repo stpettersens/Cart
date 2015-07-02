@@ -186,11 +186,12 @@ var Cart = (function () {
         var item = $('.item:eq(' + index + ')').text();
         var price = $('.price:eq(' + index + ')').text();
         var qty = $('.qty:eq(' + index + ')').text();
+        var pattern = Cart.currency + '\s*';
         if (increment) {
-            Cart.store(item + ':' + price.replace(/\$|\£\s*/, ''));
+            Cart.store(item + ':' + price.replace(pattern, ''));
         }
         else {
-            Cart.removeIt(item + ':' + price.replace(/\$|\£\s*/, ''));
+            Cart.removeIt(item + ':' + price.replace(pattern, ''));
         }
         $('#cart').empty();
         Cart.renderItems();
