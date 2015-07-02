@@ -42,6 +42,9 @@ var Cart = (function () {
     };
     Cart.removeIt = function (value) {
         if (!Cart.forceCookie && Cart.isStorageSupported()) {
+            var a_value = value.split('(');
+            if (a_value[1] != null)
+                value = a_value[0];
             var i = localStorage.length - 1;
             while ((localStorage.length - 1) >= 0) {
                 var item = localStorage.getItem('cart_item_' + i);
@@ -149,12 +152,14 @@ var Cart = (function () {
             }
             $('#cart-contents').append('</tr></table>');
             $('#cart-contents').append('<p id="total"><br/><strong>Total: ' + c + ' ' + total.toFixed(2) + '</strong></p>');
+            $('#cart').append('<p><button onclick="Cart.empty();">Empty ' + Cart.cart + '</button></p>');
             if (Cart.bootstrap) {
+                $('button').addClass('btn');
+                $('button').addClass('btn-default');
                 $('#cart-contents').addClass('table');
                 if (Cart.striped)
                     $('#cart-contents').addClass('table-striped');
             }
-            $('#cart').append('<p><button onclick="Cart.empty();">Empty ' + Cart.cart + '</button></p>');
         }
         else
             $('#cart').append('<p><em>Your ' + Cart.cart.toLowerCase() + ' is empty.</em></p>');

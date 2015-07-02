@@ -70,6 +70,8 @@ class Cart {
 	private static removeIt(value: string): void {
 		// Use localStorage when possible.
 		if(!Cart.forceCookie && Cart.isStorageSupported()) {
+			var a_value: string[] = value.split('(');
+			if(a_value[1] != null) value = a_value[0];
 			var i: number = localStorage.length - 1;
 			while((localStorage.length - 1) >= 0) {
 				var item: string = localStorage.getItem('cart_item_' + i);
@@ -79,7 +81,7 @@ class Cart {
 				}
 				i--;
 			}
-			// Correct storage indexes and restore in lcoalStorage.
+			// Correct storage indexes and restore in localStorage.
 			var corrected: string[] = new Array<string>();
 			for(var key in localStorage) {
 				if(key.search('cart_item_') != -1) {
@@ -174,13 +176,13 @@ class Cart {
 			Cart.pushFromCookie();
 		}
 		if(Cart.items.length > 0) {
-			$('#cart').append('<table id="cart-contents"><tr><td>Item</td>' 
+			$('#cart').append('<table id="cart-contents"><tr><td>Item</td>'
 			+ '<td>Price</td><td>Qty</td><td>Subtotal</td><td>&nbsp;</td></tr>');
 			for(var i = 0; i < Cart.items.length; i++) {
 				$('#cart-contents').append('<tr><td class="item">' + Cart.items[i] + '</td>' +
-				'<td class="price">' + c + ' ' + Cart.prices[i].toFixed(2) + '</td><td class="qty">' + 
+				'<td class="price">' + c + ' ' + Cart.prices[i].toFixed(2) + '</td><td class="qty">' +
 				Cart.qtys[i] + '</td><td class="subtotal">' + c + ' ' + (Cart.prices[i] * Cart.qtys[i]).toFixed(2) +
-				'</td><td><button onclick="Cart.removeItem(' + i + ')">X</button>' + 
+				'</td><td><button onclick="Cart.removeItem(' + i + ')">X</button>' +
 				'&nbsp;<button onclick="Cart.changeQty(' + i + ',true);">+</button>' +
 				'&nbsp;<button onclick="Cart.changeQty(' + i + ',false);">-</button>' +
 				'</td></tr>');
@@ -188,12 +190,14 @@ class Cart {
 			}
 			$('#cart-contents').append('</tr></table>');
 			$('#cart-contents').append('<p id="total"><br/><strong>Total: ' + c + ' ' + total.toFixed(2) + '</strong></p>');
+			$('#cart').append('<p><button onclick="Cart.empty();">Empty ' + Cart.cart + '</button></p>');
 			if(Cart.bootstrap) {
+				$('button').addClass('btn');
+				$('button').addClass('btn-default');
 				$('#cart-contents').addClass('table');
-				if(Cart.striped) 
+				if(Cart.striped)
 					$('#cart-contents').addClass('table-striped');
 			}
-			$('#cart').append('<p><button onclick="Cart.empty();">Empty ' + Cart.cart + '</button></p>');	
 		}
 		else $('#cart').append('<p><em>Your ' + Cart.cart.toLowerCase() + ' is empty.</em></p>');
 	}
@@ -265,7 +269,7 @@ class Cart {
 
 	// Configure cart instead of using defaults.
 	// Set name, force cookie use instead of localStorage,
-	// Set currency symbol, use bootstrap for tables,
+	// Set currency symbol, use bootstrap for tables and buttons,
 	// use striped tables, use alerts.
 	public static configure(name?: string, forceCookie?: boolean, currency?: string, bootstrap?: boolean, striped?: boolean, alerts?: boolean): void {
 		if(name != null) Cart.cart = name;
@@ -286,5 +290,5 @@ class Cart {
 		cart += '</div><br/><br/>';
 		$('#cart-box').empty();
 		$('#cart-box').append(cart);
-	} 
+	}
 }

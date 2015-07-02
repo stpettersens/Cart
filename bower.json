@@ -8,8 +8,9 @@
   "description": "A shopping cart implemented via the client-script",
   "main": "cart.min.js",
   "dependencies": {
-  	"jquery": ">=1.2",
-  	"jquery-cookie": ">=1.4.1"
+  	"jquery": ">=2.1.4",
+  	"jquery-cookie": ">=1.4.1",
+    "bootstrap": ">=3.3.5"
   },
   "keywords": [
     "shopping",
@@ -23,11 +24,12 @@
   "ignore": [
     "Cart.ts",
     "Gulpfile.js",
+    "configure-cart.js",
     "typings",
     "node_modules",
     "bower_components",
     ".gitignore",
     ".npmignore",
-    "tsconfig.json"
+    "*.html"
   ]
 }
