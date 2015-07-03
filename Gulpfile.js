@@ -6,7 +6,6 @@ var gulp = require('gulp'),
 	  fs = require('fs'),
 	 tsc = require('gulp-typescript'),
   insert = require('gulp-insert'),
-  concat = require('gulp-concat'),
  replace = require('gulp-replace'),
   rename = require('gulp-rename'),
   uglify = require('gulp-uglify');
@@ -26,7 +25,6 @@ gulp.task('js', function() {
 	}))
 	.pipe(gulp.dest('.'))
 	.pipe(insert.prepend(header))
-	.pipe(concat('cart.js'))
 	.pipe(gulp.dest('.'));
 });
 
@@ -37,7 +35,6 @@ gulp.task('node', function() {
 		removeComments: true,
 	}))
 	.pipe(gulp.dest('.'))
-
 	.pipe(insert.prepend('var $ = require(\'jquery\')(jsdom.jsdom(\'' +
 	'<div id="cart-alert"></div>' +
 	'<div id="cart-box"></div>' +

@@ -1,3 +1,9 @@
+/*
+A shopping cart implemented via the client-side in TypeScript.
+Copyright 2015 Sam Saint-Pettersen.
+Released under the MIT License.
+https://github.com/stpettersens/Cart
+*/
 var Cart = (function () {
     function Cart() {
     }
