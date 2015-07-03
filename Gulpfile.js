@@ -3,8 +3,8 @@
 */
 
 var gulp = require('gulp'),
-	  fs = require('fs'),
-	 tsc = require('gulp-typescript'),
+      fs = require('fs'),
+     tsc = require('gulp-typescript'),
   insert = require('gulp-insert'),
  replace = require('gulp-replace'),
   rename = require('gulp-rename'),
