@@ -22,11 +22,12 @@ class Cart {
 	private static items: string[];
 	private static prices: number[];
 	private static qtys: number[];
+	private static unrelated: string[];
 
 	// Is Storage object supported by user browser?
 	private static isStorageSupported(): boolean {
 		var storage: boolean = false;
-		if(typeof(Storage) != undefined) {
+		if(typeof(Storage) != 'undefined') {
 			storage = true;
 		}
 		return storage;
@@ -54,7 +55,7 @@ class Cart {
 	private static store(value: string): void {
 		// Use localStorage when possible.
 		if(!Cart.forceCookie && Cart.isStorageSupported()) {
-			localStorage.setItem('cart_item_' + localStorage.length, value);
+			localStorage.setItem('cart_item_' + localStorage.length, value.replace(/\:\s*/, ':'));
 		}
 		else {
 			// Otherwise, use a cookie.
@@ -117,6 +118,24 @@ class Cart {
 		}
 	}
 
+	// Push any unrelated data in localStorage back to array.
+	private static pushUnrelatedFromStorage(): void {
+		Cart.unrelated = new Array<string>();
+		for(var i: number = 0; i < localStorage.length; i++) {
+			if(localStorage.key(i).search('cart_item_') == - 1)
+				Cart.unrelated.push(localStorage.key(i) + '=>' +
+				localStorage.getItem(localStorage.key(i)));
+		}
+	}
+
+	// Restore any unrelated data to localStorage.
+	private static restoreUnrelated(): void {
+		for(var i = 0; i < Cart.unrelated.length; i++) {
+			var kv: string[] = Cart.unrelated[i].split('=>');
+			localStorage.setItem(kv[0], kv[1]);
+		}
+	}
+
 	// Push to arrays from cookie.
 	private static pushFromCookie(): void {
 		var cookie = $.cookie(Cart.cookie);
@@ -165,7 +184,7 @@ class Cart {
 	}
 
 	// Render items in cart.
-	public static renderItems(): void {
+	public static renderItems(): string[] {
 		var total: number = 0;
 		var c: string = Cart.currency;
 		Cart.reset();
@@ -200,6 +219,11 @@ class Cart {
 			}
 		}
 		else $('#cart').append('<p><em>Your ' + Cart.cart.toLowerCase() + ' is empty.</em></p>');
+		var at_price_list = new Array<string>();
+		for(var i: number = 0; i < Cart.items.length; i++) {
+			at_price_list.push(Cart.items[i] + '|' + Cart.currency + ' ' + Cart.prices[i].toFixed(2) + '|' + Cart.qtys[i]);
+		}
+		return at_price_list;
 	}
 
 	// Empty the cart.
@@ -227,7 +251,7 @@ class Cart {
 		var item: string = $('.item:eq(' + index + ')').text();
 		var price: string = $('.price:eq(' + index + ')').text();
 		var qty: string = $('.qty:eq(' + index + ')').text();
-		var pattern: string = Cart.currency + '\s*';
+		var pattern = new RegExp('\\' + Cart.currency + '\s*', 'ig');
 		if(increment) {
 			Cart.store(item + ':' + price.replace(pattern, ''));
 		}
@@ -238,12 +262,14 @@ class Cart {
 		Cart.renderItems();
 	}
 
-	// Remove an item from cart.
+	// Remove all occcurences of an item from cart.
 	public static removeItem(index: number): void {
 		Cart.reset();
 		if(!Cart.forceCookie && Cart.isStorageSupported()) {
 			Cart.pushFromStorage();
+			Cart.pushUnrelatedFromStorage();
 			localStorage.clear();
+			Cart.restoreUnrelated();
 		}
 		else {
 			Cart.pushFromCookie();
@@ -260,9 +286,12 @@ class Cart {
 
 	// Add an item to cart.
 	public static addItem(id: number): void {
+		var pattern = new RegExp('\\' + Cart.currency + '\s*', 'ig');
 		var item: string = $('#product-' + id +'> .name').text();
+		var price: string = null;
 		$('#product-' + id).each(function() {
-			Cart.store(item + ':' + $('#product-' + id + '> .price').text().replace(/\$|\£\s*/, ''));
+			price = $('#product-' + id + '> .price').text();
+			Cart.store(item + ':' + price.replace(pattern, ''));
 		});
 		Cart.showAlert('Added ' + item + ' to ' + Cart.cart.toLowerCase());
 		Cart.renderCart(Cart.page);
@@ -283,7 +312,7 @@ class Cart {
 	}
 
 	// Render cart box with item count.
-	public static renderCart(page: string): void {
+	public static renderCart(page: string): string {
 		Cart.page = page;
 		var cart: string = '<div id="cart-items">';
 		cart += '<a href="' + Cart.page + '">' + Cart.cart + '</a>';
@@ -291,5 +320,6 @@ class Cart {
 		cart += '</div><br/><br/>';
 		$('#cart-box').empty();
 		$('#cart-box').append(cart);
+		return Cart.cart + ' => ' + Cart.getNumberItems().toString();
 	}
 }

@@ -2,3 +2,4 @@ node_modules/
 Coyote.py
 *.xml
 check_bower.js
+cart.node.js

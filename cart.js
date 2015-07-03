@@ -1,15 +1,9 @@
-/*
-A shopping cart implemented via the client-side in TypeScript.
-Copyright 2015 Sam Saint-Pettersen.
-Released under the MIT License.
-https://github.com/stpettersens/Cart
-*/
 var Cart = (function () {
     function Cart() {
     }
     Cart.isStorageSupported = function () {
         var storage = false;
-        if (typeof (Storage) != undefined) {
+        if (typeof (Storage) != 'undefined') {
             storage = true;
         }
         return storage;
@@ -29,7 +23,7 @@ var Cart = (function () {
     };
     Cart.store = function (value) {
         if (!Cart.forceCookie && Cart.isStorageSupported()) {
-            localStorage.setItem('cart_item_' + localStorage.length, value);
+            localStorage.setItem('cart_item_' + localStorage.length, value.replace(/\:\s*/, ':'));
         }
         else {
             var items = $.cookie(Cart.cookie);
@@ -85,6 +79,19 @@ var Cart = (function () {
             }
             else
                 Cart.qtys[index] = Cart.qtys[index] + 1;
+        }
+    };
+    Cart.pushUnrelatedFromStorage = function () {
+        Cart.unrelated = new Array();
+        for (var i = 0; i < localStorage.length; i++) {
+            if (localStorage.key(i).search('cart_item_') == -1)
+                Cart.unrelated.push(localStorage.key(i) + '=>' + localStorage.getItem(localStorage.key(i)));
+        }
+    };
+    Cart.restoreUnrelated = function () {
+        for (var i = 0; i < Cart.unrelated.length; i++) {
+            var kv = Cart.unrelated[i].split('=>');
+            localStorage.setItem(kv[0], kv[1]);
         }
     };
     Cart.pushFromCookie = function () {
@@ -163,6 +170,11 @@ var Cart = (function () {
         }
         else
             $('#cart').append('<p><em>Your ' + Cart.cart.toLowerCase() + ' is empty.</em></p>');
+        var at_price_list = new Array();
+        for (var i = 0; i < Cart.items.length; i++) {
+            at_price_list.push(Cart.items[i] + '|' + Cart.currency + ' ' + Cart.prices[i].toFixed(2) + '|' + Cart.qtys[i]);
+        }
+        return at_price_list;
     };
     Cart.empty = function (noprompt) {
         if (!noprompt)
@@ -186,7 +198,7 @@ var Cart = (function () {
         var item = $('.item:eq(' + index + ')').text();
         var price = $('.price:eq(' + index + ')').text();
         var qty = $('.qty:eq(' + index + ')').text();
-        var pattern = Cart.currency + '\s*';
+        var pattern = new RegExp('\\' + Cart.currency + '\s*', 'ig');
         if (increment) {
             Cart.store(item + ':' + price.replace(pattern, ''));
         }
@@ -200,7 +212,9 @@ var Cart = (function () {
         Cart.reset();
         if (!Cart.forceCookie && Cart.isStorageSupported()) {
             Cart.pushFromStorage();
+            Cart.pushUnrelatedFromStorage();
             localStorage.clear();
+            Cart.restoreUnrelated();
         }
         else {
             Cart.pushFromCookie();
@@ -215,9 +229,12 @@ var Cart = (function () {
         Cart.renderItems();
     };
     Cart.addItem = function (id) {
+        var pattern = new RegExp('\\' + Cart.currency + '\s*', 'ig');
         var item = $('#product-' + id + '> .name').text();
+        var price = null;
         $('#product-' + id).each(function () {
-            Cart.store(item + ':' + $('#product-' + id + '> .price').text().replace(/\$|\£\s*/, ''));
+            price = $('#product-' + id + '> .price').text();
+            Cart.store(item + ':' + price.replace(pattern, ''));
         });
         Cart.showAlert('Added ' + item + ' to ' + Cart.cart.toLowerCase());
         Cart.renderCart(Cart.page);
@@ -246,6 +263,7 @@ var Cart = (function () {
         cart += '</div><br/><br/>';
         $('#cart-box').empty();
         $('#cart-box').append(cart);
+        return Cart.cart + ' => ' + Cart.getNumberItems().toString();
     };
     Cart.cart = 'Cart';
     Cart.forceCookie = false;

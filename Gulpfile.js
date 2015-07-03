@@ -1,5 +1,5 @@
 /*
-	Compile cart.ts to JavaScript for end-use.
+	Compile Cart.ts to JavaScript for end-use.
 */
 
 var gulp = require('gulp'),
@@ -7,6 +7,7 @@ var gulp = require('gulp'),
 	 tsc = require('gulp-typescript'),
   insert = require('gulp-insert'),
   concat = require('gulp-concat'),
+ replace = require('gulp-replace'),
   rename = require('gulp-rename'),
   uglify = require('gulp-uglify');
 
@@ -18,7 +19,7 @@ var header = '/*' +
 '\n*/\n';
 
 gulp.task('js', function() {
-	return gulp.src('cart.ts')
+	return gulp.src('Cart.ts')
 	.pipe(tsc({
 		noImplicitAny: true,
 		removeComments: true
@@ -29,8 +30,51 @@ gulp.task('js', function() {
 	.pipe(gulp.dest('.'));
 });
 
+gulp.task('node', function() {
+	return gulp.src('Cart.ts')
+	.pipe(tsc({
+		noImplicitAny: true,
+		removeComments: true,
+	}))
+	.pipe(gulp.dest('.'))
+
+	.pipe(insert.prepend('var $ = require(\'jquery\')(jsdom.jsdom(\'' +
+	'<div id="cart-alert"></div>' +
+	'<div id="cart-box"></div>' +
+	'<div id="product-1">' +
+	'<p class="item name">Supa Soda</p>' +
+	'<p class="price">$ 0.85</p>' +
+	'<p class="qty">5</p>' +
+	'</div>' +
+	'<div id="product-2">' +
+	'<p class="item name">Dakota Cola</p>' +
+	'<p class="price">$ 0.70</p>' +
+	'<p class="qty">5</p>' +
+	'</div>' +
+	'<div id="product-3">' +
+	'<p class="item name">Soda Water (250ml)</p>' +
+	'<p class="price">$ 1.50</p>' +
+	'<p class="qty>"5</p>' +
+	'</div>\').parentWindow);\n'))
+	.pipe(insert.prepend('var Storage = \'fakestorage\';\n'))
+	.pipe(insert.prepend('var jsdom = require(\'node-jsdom\');\n'))
+	.pipe(insert.prepend('var localStorage = require(\'fake-storage\');\n'))
+	.pipe(insert.prepend(header))
+	.pipe(insert.prepend('/* FOR HEADLESS TESTING IN NODE.JS ONLY. DO NOT USE IN BROWSER. */\n'))
+	.pipe(insert.append('module.exports = Cart'))
+	.pipe(concat('cart.node.js'))
+	.pipe(replace(/(localStorage).length/g, '$1.count'))
+	.pipe(replace(/for \(var key in (localStorage)\)/g,
+	'for (var i = 0; i < $1.count; i++)'))
+	.pipe(replace(/key.search/g, 'localStorage.key(i).search'))
+	.pipe(replace(/key.indexOf/g, 'localStorage.key()'))
+	.pipe(replace(/(localStorage.getItem)\(key\)/g, '$1(localStorage.key(i))'))
+	.pipe(replace(/(localStorage.removeItem)\(key\)/g, '$1(localStorage.key(i))'))
+	.pipe(gulp.dest('.'));
+})
+
 gulp.task('jsmin', function() {
-	return gulp.src('cart.ts')
+	return gulp.src('Cart.ts')
 	.pipe(tsc({
 		noImplicitAny: true,
 		removeComments: true

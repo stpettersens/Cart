@@ -4,3 +4,4 @@ Coyote.py
 *.html
 tsconfig.json
 configure-cart.js
+cart.node.js

@@ -10,16 +10,24 @@
     "typescript"
   ],
   "scripts": {
-    "build": "gulp"
+    "build": "gulp",
+    "test": "gulp node && node node_modules/mocha/bin/mocha cart.test.js"
   },
   "author": "Sam Saint-Pettersen <s.stpettersen+github@gmail.com>",
   "license": "MIT",
   "devDependencies": {
+    "ascii-table": "0.0.8",
+    "fake-storage": "~1.0.0",
     "gulp": "~3.9.0",
-    "gulp-typescript": "~2.7.7",
-    "gulp-insert": "~0.4.0",
     "gulp-concat": "~2.5.2",
+    "gulp-insert": "~0.4.0",
     "gulp-rename": "~1.2.2",
-    "gulp-uglify": "~1.2.0"
+    "gulp-replace": "^0.5.3",
+    "gulp-typescript": "~2.7.7",
+    "gulp-uglify": "~1.2.0",
+    "jquery": "^2.1.4",
+    "mocha": "^2.2.5",
+    "node-jsdom": "^3.1.5",
+    "should": "^7.0.1"
   }
 }

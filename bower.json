@@ -25,6 +25,7 @@
     "Cart.ts",
     "Gulpfile.js",
     "configure-cart.js",
+    "phantomjs.js",
     "typings",
     "node_modules",
     "bower_components",
