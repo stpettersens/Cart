@@ -1,6 +1,6 @@
 {
   "name": "cart",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "homepage": "https://github.com/stpettersens/Cart",
   "authors": [
     "Sam Saint-Pettersen <s.stpettersen+github@gmail.com>"
@@ -31,6 +31,7 @@
     "bower_components",
     ".gitignore",
     ".npmignore",
+    ".travis.yml",
     "*.html"
   ]
 }
