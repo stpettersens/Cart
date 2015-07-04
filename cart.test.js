@@ -7,24 +7,29 @@ var cart = require('./cart.node.js'),
   AsciiTable = require('ascii-table');
 
 function emit(msg) {
+  var table = new AsciiTable();
+  table.setHeading('Item', 'Price', 'Qty', '', '', '');
   var message = msg.toString();
   if(message.indexOf(',') != -1) {
       var a_message = message.split(',');
-      var table = new AsciiTable();
-      table.setHeading('Item', 'Price', 'Qty');
       for(var i = 0; i < a_message.length; i++) {
           var col = a_message[i].split('|');
-          table.addRow(col[0], col[1], col[2]);
+          table.addRow(col[0], col[1], col[2], 'X', '+', '-');
       }
       message = table.toString();
+  }
+  else if(message.indexOf('|') != -1) {
+    var col = message.split('|');
+    table.addRow(col[0], col[1], col[2], 'X', '+', '-');
+    message = table.toString();
   }
   else message = '\t' + message;
   console.log(message);
 }
 
 describe('Configure cart:', function() {
-  it('Configure as \'Cart\' with no force cookies, bootstrap + striped and alerts', function() {
-      cart.configure(null, false, '$', true, true, true);
+  it('Configure as \'Cart\' using cookie and $ as currency', function() {
+      cart.configure(null, true, '$');
   });
 });
 
@@ -68,5 +73,20 @@ describe('Recheck items in cart', function() {
 });
 
 describe('Remove items from cart:', function() {
+  it('Remove 3x Super Soda from cart; should have 8 items now', function() {
+    for(var i = 0; i < 3; i++) cart.changeQty(0, false);
+    cart.getNumberItems().should.equal(8);
+    emit(cart.renderItems());
+  });
 
+  it('Remove any Soda Waters from cart; should have 1 item now', function() {
+    cart.removeItem(1);
+    cart.getNumberItems().should.equal(1);
+    emit(cart.renderItems());
+  });
+
+  it('Empty the cart; should have 0 items now', function() {
+    cart.empty(true);
+    cart.getNumberItems().should.equal(0);
+  });
 });
