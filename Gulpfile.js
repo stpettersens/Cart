@@ -21,7 +21,8 @@ gulp.task('js', function() {
 	return gulp.src('Cart.ts')
 	.pipe(tsc({
 		noImplicitAny: true,
-		removeComments: true
+		removeComments: true,
+		out: 'cart.js'
 	}))
 	.pipe(gulp.dest('.'))
 	.pipe(insert.prepend(header))
@@ -33,6 +34,7 @@ gulp.task('node', function() {
 	.pipe(tsc({
 		noImplicitAny: true,
 		removeComments: true,
+		out: 'cart.node.js'
 	}))
 	.pipe(gulp.dest('.'))
 	.pipe(insert.prepend('var $ = require(\'jquery\')(jsdom.jsdom(\'' +
@@ -53,13 +55,13 @@ gulp.task('node', function() {
 	'<p class="price">$ 1.50</p>' +
 	'<p class="qty>"5</p>' +
 	'</div>\').parentWindow);\n'))
-	.pipe(insert.prepend('var Storage = \'fakestorage\';\n'))
+	.pipe(insert.prepend('var fc = require(\'fake-cookie\');\n'))
+	.pipe(insert.prepend('var Storage = \'ssp-fake-storage\';\n'))
 	.pipe(insert.prepend('var jsdom = require(\'node-jsdom\');\n'))
-	.pipe(insert.prepend('var localStorage = require(\'fake-storage\');\n'))
+	.pipe(insert.prepend('var localStorage = require(\'ssp-fake-storage\');\n'))
 	.pipe(insert.prepend(header))
 	.pipe(insert.prepend('/* FOR HEADLESS TESTING IN NODE.JS ONLY. DO NOT USE IN BROWSER. */\n'))
 	.pipe(insert.append('module.exports = Cart'))
-	.pipe(concat('cart.node.js'))
 	.pipe(replace(/(localStorage).length/g, '$1.count'))
 	.pipe(replace(/for \(var key in (localStorage)\)/g,
 	'for (var i = 0; i < $1.count; i++)'))
@@ -67,6 +69,8 @@ gulp.task('node', function() {
 	.pipe(replace(/key.indexOf/g, 'localStorage.key()'))
 	.pipe(replace(/(localStorage.getItem)\(key\)/g, '$1(localStorage.key(i))'))
 	.pipe(replace(/(localStorage.removeItem)\(key\)/g, '$1(localStorage.key(i))'))
+	.pipe(replace(/\$.(cookie)/g, 'fc.$1'))
+	.pipe(replace(/\$.(removeCookie)/g, 'fc.$1'))
 	.pipe(gulp.dest('.'));
 })
 
@@ -74,7 +78,8 @@ gulp.task('jsmin', function() {
 	return gulp.src('Cart.ts')
 	.pipe(tsc({
 		noImplicitAny: true,
-		removeComments: true
+		removeComments: true,
+		out: 'cart.js'
 	}))
 	.pipe(insert.prepend(header))
 	.pipe(gulp.dest('.'))
